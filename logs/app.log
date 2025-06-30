@@ -1,0 +1,186 @@
+2025-06-30 13:46:06,646 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 13:46:06,647 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 13:46:06,865 - KG_Dashboard_Windows - INFO - 初始化图谱处理器
+2025-06-30 13:46:08,980 - KG_Dashboard_Windows - ERROR - 初始化图谱处理器失败: Cannot open connection to ConnectionProfile('bolt://127.0.0.1:7687')
+2025-06-30 16:02:59,610 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 16:02:59,611 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 16:03:00,005 - KG_Dashboard_Windows - INFO - 初始化图谱处理器
+2025-06-30 16:03:18,165 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 16:03:18,166 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 16:03:18,303 - KG_Dashboard_Windows - INFO - 开始导入任务，批次大小: 10000
+2025-06-30 16:03:18,304 - KG_Dashboard_Windows - ERROR - 导入任务失败: 'MedicalGraph' object has no attribute 'create_graphnodes'
+2025-06-30 16:10:09,464 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 16:10:09,464 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 16:11:16,277 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 16:11:16,278 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 16:15:01,080 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 16:15:01,081 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 16:15:01,465 - KG_Dashboard_Windows - INFO - 开始导入任务，批次大小: 10000
+2025-06-30 16:15:01,467 - KG_Dashboard_Windows - ERROR - 导入任务失败: 'MedicalGraph' object has no attribute 'create_graphnodes'
+Traceback (most recent call last):
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\kg_import_dashboard_windows.py", line 208, in run_simple_import
+    handler.create_graphnodes(batch_size)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MedicalGraph' object has no attribute 'create_graphnodes'
+
+2025-06-30 16:27:58,580 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 16:27:58,581 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 16:29:00,287 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 16:29:00,287 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 16:29:00,374 - KG_Dashboard_Windows - ERROR - 导入前检查失败: Graph.exists() missing 1 required positional argument: 'subgraph'
+Traceback (most recent call last):
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\kg_import_dashboard_windows.py", line 344, in <module>
+    if handler.g.exists():
+       ^^^^^^^^^^^^^^^^^^
+TypeError: Graph.exists() missing 1 required positional argument: 'subgraph'
+
+2025-06-30 16:46:59,863 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 16:46:59,863 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:17:14,585 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:17:14,585 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:17:15,047 - KG_Dashboard_Windows - INFO - 初始化图谱处理器
+2025-06-30 17:17:17,210 - KG_Dashboard_Windows - ERROR - 初始化图谱处理器失败: Cannot open connection to ConnectionProfile('bolt://127.0.0.1:7687')
+2025-06-30 17:18:02,919 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:18:02,919 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:20:38,774 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:20:38,774 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:25:52,413 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:25:52,415 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:25:52,789 - KG_Dashboard_Windows - INFO - 初始化图谱处理器
+2025-06-30 17:26:27,077 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:26:27,078 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:28:11,596 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:28:11,597 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:28:11,734 - KG_Dashboard_Windows - ERROR - 导入前检查失败: 'NoneType' object has no attribute 'exists'
+Traceback (most recent call last):
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\kg_import_dashboard_windows.py", line 344, in <module>
+    if handler.g.exists():
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'exists'
+
+2025-06-30 17:28:16,632 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:28:16,633 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:28:17,237 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:28:17,237 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:28:17,854 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:28:17,854 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:28:18,775 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:28:18,776 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:28:18,940 - KG_Dashboard_Windows - ERROR - 导入前检查失败: 'NoneType' object has no attribute 'exists'
+Traceback (most recent call last):
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\kg_import_dashboard_windows.py", line 344, in <module>
+    if handler.g.exists():
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'exists'
+
+2025-06-30 17:29:03,882 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:29:03,882 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:29:04,173 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:29:04,174 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:29:06,245 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:29:06,247 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:29:06,393 - KG_Dashboard_Windows - ERROR - 导入前检查失败: 'NoneType' object has no attribute 'exists'
+Traceback (most recent call last):
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\kg_import_dashboard_windows.py", line 344, in <module>
+    if handler.g.exists():
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'exists'
+
+2025-06-30 17:29:10,888 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:29:10,888 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:29:11,529 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:29:11,530 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:29:11,679 - KG_Dashboard_Windows - ERROR - 导入前检查失败: 'NoneType' object has no attribute 'exists'
+Traceback (most recent call last):
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\kg_import_dashboard_windows.py", line 344, in <module>
+    if handler.g.exists():
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'exists'
+
+2025-06-30 17:37:19,394 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:37:19,434 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:37:36,782 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:37:36,783 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:37:37,070 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:37:37,071 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:37:37,386 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:37:37,387 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:37:38,348 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:37:38,348 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:37:38,509 - KG_Dashboard_Windows - ERROR - Neo4j连接未成功初始化，请确保Neo4j数据库已启动
+2025-06-30 17:38:09,665 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:38:09,666 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:38:09,871 - KG_Dashboard_Windows - ERROR - Neo4j连接未成功初始化，请确保Neo4j数据库已启动
+2025-06-30 17:38:12,618 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:38:12,619 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:38:12,721 - KG_Dashboard_Windows - ERROR - Neo4j连接未成功初始化，请确保Neo4j数据库已启动
+2025-06-30 17:49:41,842 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 17:49:41,843 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 17:49:42,088 - KG_Dashboard_Windows - INFO - 初始化图谱处理器
+2025-06-30 18:15:36,645 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 18:15:36,646 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 18:15:37,206 - KG_Dashboard_Windows - INFO - 初始化图谱处理器
+2025-06-30 18:15:46,395 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 18:15:46,396 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 18:15:46,553 - KG_Dashboard_Windows - ERROR - 导入前检查失败: Graph.exists() missing 1 required positional argument: 'subgraph'
+Traceback (most recent call last):
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\kg_import_dashboard_windows.py", line 390, in <module>
+    elif handler.g.exists():
+         ^^^^^^^^^^^^^^^^^^
+TypeError: Graph.exists() missing 1 required positional argument: 'subgraph'
+
+2025-06-30 18:15:52,252 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 18:15:52,252 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 18:15:53,297 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 18:15:53,298 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 18:15:53,452 - KG_Dashboard_Windows - ERROR - 导入前检查失败: Graph.exists() missing 1 required positional argument: 'subgraph'
+Traceback (most recent call last):
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\kg_import_dashboard_windows.py", line 390, in <module>
+    elif handler.g.exists():
+         ^^^^^^^^^^^^^^^^^^
+TypeError: Graph.exists() missing 1 required positional argument: 'subgraph'
+
+2025-06-30 18:24:40,061 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 18:24:40,061 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 18:24:48,404 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 18:24:48,405 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 18:24:49,201 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 18:24:49,202 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 18:24:49,506 - KG_Dashboard_Windows - INFO - Neo4j数据库连接正常，开始导入流程
+2025-06-30 18:24:49,508 - KG_Dashboard_Windows - INFO - 开始导入任务，批次大小: 14000
+2025-06-30 18:24:49,512 - KG_Dashboard_Windows - INFO - 开始导入节点...
+2025-06-30 18:24:50,138 - KG_Dashboard_Windows - ERROR - 导入任务失败: I/O operation on closed file.
+Traceback (most recent call last):
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\kg_import_dashboard_windows.py", line 249, in run_simple_import
+    node_count = handler.create_graphnodes(batch_size)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\build_graph.py", line 95, in create_graphnodes
+    return self.create_graphnodes_incremental(self.batch_size)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\build_graph.py", line 568, in create_graphnodes_incremental
+    total_nodes += self.create_node_incremental('product', self.product_path, limit)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\franc\Projects\ChainKnowledgeGraph\build_graph.py", line 404, in create_node_incremental
+    for node in tqdm(nodes, desc=f"创建 {label} 节点"):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\franc\.conda\envs\pChainKnowledgeGraph\Lib\site-packages\tqdm\std.py", line 1093, in __init__
+    self.sp = self.status_printer(self.fp)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\franc\.conda\envs\pChainKnowledgeGraph\Lib\site-packages\tqdm\std.py", line 336, in status_printer
+    getattr(sys.stderr, 'flush', lambda: None)()
+ValueError: I/O operation on closed file.
+
+2025-06-30 21:12:52,401 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 21:12:52,402 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 21:12:52,857 - KG_Dashboard_Windows - INFO - 初始化图谱处理器
+2025-06-30 21:13:00,128 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 21:13:00,130 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 21:13:01,112 - KG_Dashboard_Windows - INFO - 启动Windows版知识图谱数据导入可视化工具
+2025-06-30 21:13:01,113 - KG_Dashboard_Windows - INFO - 加载Windows专用配置文件
+2025-06-30 21:13:01,235 - KG_Dashboard_Windows - INFO - Neo4j数据库连接正常，开始导入流程
+2025-06-30 21:13:01,237 - KG_Dashboard_Windows - INFO - 开始导入任务，批次大小: 12000
+2025-06-30 21:13:01,238 - KG_Dashboard_Windows - INFO - 开始导入节点...
+2025-06-30 21:13:03,788 - KG_Dashboard_Windows - INFO - 节点导入完成，数量: 12000
+2025-06-30 21:13:03,789 - KG_Dashboard_Windows - INFO - 开始导入关系...
+2025-06-30 21:13:35,098 - KG_Dashboard_Windows - INFO - 关系导入完成，数量: 24000
+2025-06-30 21:13:35,100 - KG_Dashboard_Windows - INFO - 导入任务完成，耗时: 33.86秒
