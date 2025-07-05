@@ -1,1 +1,27 @@
- 
+# Python
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.pkl
+
+# Logs
+logs/
+*.log
+
+# Backup files
+*.bak
+*.tmp
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE specific files
+.idea/
+.vscode/
+
+# Other
+data - 副本/
+import_state.json

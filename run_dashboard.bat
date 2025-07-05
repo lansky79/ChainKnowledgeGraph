@@ -369,7 +369,8 @@ if %errorlevel% equ 0 (
 
 echo echo 正在启动Streamlit应用... >> run_streamlit.bat
 echo echo 启动命令: python -m streamlit run kg_import_dashboard_windows.py >> run_streamlit.bat
-echo python -m streamlit run kg_import_dashboard_windows.py --server.headless=true --server.enableCORS=false >> run_streamlit.bat
+echo python -m streamlit run kg_import_dashboard.py >> run_streamlit.bat
+echo python -m streamlit run kg_import_dashboard.py --server.headless=true --server.enableCORS=false >> run_streamlit.bat
 echo if %%errorlevel%% neq 0 ( >> run_streamlit.bat
 echo   echo [错误] Streamlit启动失败，错误代码: %%errorlevel%% >> run_streamlit.bat
 echo   echo 请检查以下内容: >> run_streamlit.bat

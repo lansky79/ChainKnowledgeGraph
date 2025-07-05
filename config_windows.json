@@ -1,37 +1,13 @@
 {
     "neo4j": {
-        "uri": "bolt://127.0.0.1:7687",
+        "uri": "bolt://localhost:7687",
         "username": "neo4j",
         "password": "12345678"
     },
     "app": {
-        "title": "知识图谱数据导入可视化工具 - Windows版",
-        "theme": "light",
+        "title": "知识图谱数据导入可视化工具",
         "batch_size_default": 10000,
         "batch_size_min": 1000,
-        "batch_size_max": 50000,
-        "refresh_interval": 60,
-        "show_logo": true,
-        "windows_mode": true
-    },
-    "data_paths": {
-        "import_state": "data\\import_state.pkl",
-        "company": "data\\company.json",
-        "industry": "data\\industry.json",
-        "product": "data\\product.json",
-        "company_industry": "data\\company_industry.json",
-        "industry_industry": "data\\industry_industry.json",
-        "company_product": "data\\company_product.json",
-        "product_product": "data\\product_product.json"
-    },
-    "windows_settings": {
-        "use_cmd": true,
-        "browser_path": "",
-        "neo4j_path": "C:\\Program Files\\Neo4j Desktop\\Neo4j Desktop.exe",
-        "log_path": "logs\\app.log",
-        "auto_start_browser": true,
-        "auto_start_neo4j": true,
-        "theme_color": "#4CAF50",
-        "disable_progress_animation": true
+        "batch_size_max": 50000
     }
 } 
