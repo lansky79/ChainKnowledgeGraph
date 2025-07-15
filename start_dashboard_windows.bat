@@ -154,7 +154,7 @@ start "" http://localhost:8501
 
 :: 直接在当前窗口运行Python脚本
 echo 正在启动应用，如果出现错误将显示在下方...
-python -u kg_import_dashboard_windows.py
+python -u kg_import_dashboard.py
 set ERRORLEVEL_PYTHON=%errorlevel%
 
 :: 如果应用异常退出

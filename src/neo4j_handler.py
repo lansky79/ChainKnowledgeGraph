@@ -57,12 +57,12 @@ class Neo4jHandler:
         self.import_state = {}
         
         # 数据文件路径
-        self.company_path = "data/company.json"
-        self.industry_path = "data/industry.json"
-        self.product_path = "data/product.json"
-        self.company_industry_path = "data/company_industry.json"
+        self.company_path = "data/company.jsonl" if os.path.exists("data/company.jsonl") else "data/company.json"
+        self.industry_path = "data/industry.jsonl" if os.path.exists("data/industry.jsonl") else "data/industry.json"
+        self.product_path = "data/product.jsonl" if os.path.exists("data/product.jsonl") else "data/product.json"
+        self.company_industry_path = "data/company_industry.jsonl" if os.path.exists("data/company_industry.jsonl") else "data/company_industry.json"
         self.industry_industry = "data/industry_industry.json"
-        self.company_product_path = "data/company_product.json"
+        self.company_product_path = "data/company_product.jsonl" if os.path.exists("data/company_product.jsonl") else "data/company_product.json"
         self.product_product = "data/product_product.json"
         
         # 尝试加载导入状态

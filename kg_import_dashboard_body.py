@@ -1302,13 +1302,23 @@ with tab3:
                         
                         # 如果网络图显示失败，回退到关系矩阵
                         st.warning('无法显示网络图，将显示关系矩阵作为替代')
-                        fig = visualize_matrix(st.session_state.explored_relationships, node_map)
-                        st.pyplot(fig)
+                        # 创建节点类型映射
+                        node_types = {}
+                        for node_id, node_name, node_type in st.session_state.explored_nodes:
+                            node_types[node_name] = node_type
+                        fig = visualize_matrix(st.session_state.explored_relationships, node_map, node_types)
+                        if fig:
+                            st.pyplot(fig)
                     else:
                         # 添加关系矩阵作为可选视图
                         with st.expander('查看关系矩阵'):
-                            fig = visualize_matrix(st.session_state.explored_relationships, node_map)
-                            st.pyplot(fig)
+                            # 创建节点类型映射
+                            node_types = {}
+                            for node_id, node_name, node_type in st.session_state.explored_nodes:
+                                node_types[node_name] = node_type
+                            fig = visualize_matrix(st.session_state.explored_relationships, node_map, node_types)
+                            if fig:
+                                st.pyplot(fig)
                 except Exception as e:
                     st.error(f"无法显示网络图: {str(e)}")
             else:

@@ -225,6 +225,104 @@ st.markdown("""
 # 统一的页面标题
 st.markdown("<h4 style='font-size:1.1rem; margin:0; padding:0.2rem 0; text-align: center;'>知识图谱数据导入可视化工具 <span style='font-size:0.8rem; color:#666;'>版本: 1.0</span></h4>", unsafe_allow_html=True)
 
+# --- Analysis Functions ---
+def analyze_industry_chain(handler, industry_name, upstream_depth=1, downstream_depth=1):
+    """
+    Analyzes the industry chain for a given industry.
+    """
+    if not handler or not handler.g:
+        return []
+
+    # Find upstream industries
+    upstream_query = f"""
+    MATCH (start_industry:industry {{name: $industry_name}})<-[:上游行业*1..{upstream_depth}]-(upstream_industry:industry)
+    RETURN DISTINCT upstream_industry
+    """
+    upstream_result = handler.g.run(upstream_query, industry_name=industry_name).data()
+    upstream_industries = [record['upstream_industry'] for record in upstream_result]
+
+    # Find downstream industries
+    downstream_query = f"""
+    MATCH (start_industry:industry {{name: $industry_name}})-[:上游行业*1..{downstream_depth}]->(downstream_industry:industry)
+    RETURN DISTINCT downstream_industry
+    """
+    downstream_result = handler.g.run(downstream_query, industry_name=industry_name).data()
+    downstream_industries = [record['downstream_industry'] for record in downstream_result]
+
+    # Find companies in the industry
+    companies_query = f"""
+    MATCH (c:company)-[:属于]->(i:industry {{name: $industry_name}})
+    RETURN c
+    """
+    companies_result = handler.g.run(companies_query, industry_name=industry_name).data()
+    companies = [record['c'] for record in companies_result]
+    
+    # Find products in the industry
+    products_query = f"""
+    MATCH (p:product)<-[:主营产品]-(c:company)-[:属于]->(i:industry {{name: $industry_name}})
+    RETURN p
+    """
+    products_result = handler.g.run(products_query, industry_name=industry_name).data()
+    products = [record['p'] for record in products_result]
+
+
+    return [{
+        "upstream": upstream_industries,
+        "downstream": downstream_industries,
+        "companies": companies,
+        "products": products
+    }]
+
+def analyze_competition(handler, industry_name, upstream_depth=1, downstream_depth=1):
+    """
+    Analyzes the competition within a given industry.
+    """
+    if not handler or not handler.g:
+        return []
+
+    query = f"""
+    MATCH (c1:company)-[:属于]->(i:industry {{name: $industry_name}})
+    MATCH (c2:company)-[:属于]->(i)
+    WHERE id(c1) < id(c2)
+    OPTIONAL MATCH (c1)-[r]-(c2)
+    RETURN c1.name AS company1, c2.name AS company2, count(r) as strength
+    """
+    result = handler.g.run(query, industry_name=industry_name).data()
+    return result
+
+def analyze_enterprise_association(handler, industry_name, upstream_depth=1, downstream_depth=1):
+    """
+    Analyzes the associations of enterprises in a given industry.
+    """
+    if not handler or not handler.g:
+        return []
+
+    query = f"""
+    MATCH (c:company)-[:属于]->(:industry {{name: $industry_name}})
+    MATCH (c)-[r]-(related_entity)
+    RETURN c.name as company, type(r) as relationship, related_entity.name as related_entity, labels(related_entity)[0] as entity_type
+    LIMIT 500
+    """
+    result = handler.g.run(query, industry_name=industry_name).data()
+    return result
+
+def analyze_product_technology(handler, industry_name, upstream_depth=1, downstream_depth=1):
+    """
+    Analyzes the products and technologies in a given industry.
+    """
+    if not handler or not handler.g:
+        return []
+
+    query = f"""
+    MATCH (p:product)<-[:主营产品|拥有|生产]-(:company)-[:属于]->(:industry {{name: $industry_name}})
+    OPTIONAL MATCH (p)-[r]-(related_entity)
+    WITH p, collect(related_entity.name) as related_entities, count(r) as connection_count
+    RETURN p.name as product, connection_count, related_entities
+    ORDER BY connection_count DESC
+    """
+    result = handler.g.run(query, industry_name=industry_name).data()
+    return result
+
 # 初始化会话状态
 if 'import_history' not in st.session_state:
     st.session_state.import_history = []
@@ -237,6 +335,14 @@ if 'is_importing' not in st.session_state:
 
 if 'error_message' not in st.session_state:
     st.session_state.error_message = None
+
+if 'analysis_functions' not in st.session_state:
+    st.session_state.analysis_functions = {
+        "产业链分析": analyze_industry_chain,
+        "竞争情报分析": analyze_competition,
+        "企业关联分析": analyze_enterprise_association,
+        "产品技术分析": analyze_product_technology
+    }
 
 # 创建MedicalGraph实例
 @st.cache_resource
@@ -958,7 +1064,14 @@ with tab3:
                     total_nodes = len(company_data) + len(industry_data) + len(product_data)
                     total_rels = len(company_industry_data) + len(company_product_own_data) + len(company_product_produce_data)
                     st.success(f"成功导入示例数据: {total_nodes} 个节点和 {total_rels} 条关系")
-                    st.info("现在您可以搜索以下示例实体: 阿里巴巴, 腾讯, 百度, 华为, 小米")
+                    
+                    # 验证华为公司是否存在
+                    result = handler.g.run("MATCH (c:company {name: '华为'}) RETURN c").data()
+                    if result:
+                        st.info("验证成功：已可以在数据库中查询到“华为”公司。")
+                    else:
+                        st.warning("验证失败：未在数据库中查询到“华为”公司，请检查导入逻辑。")
+
                 except Exception as e:
                     st.error(f"导入示例数据失败: {str(e)}")
                     st.code(traceback.format_exc())
@@ -1109,93 +1222,106 @@ with tab3:
 with tab4:
     st.markdown("<h4 style='font-size:1rem; margin:0.1rem 0;'>知识图谱可视化</h4>", unsafe_allow_html=True)
     
-    # 顶部控制面板，使用列来布局
-    vis_control_col1, vis_control_col2 = st.columns([1, 1])
+    # 使用两列布局，左侧为控制面板，右侧为结果展示
+    control_col, result_col = st.columns([1, 2])
 
-    with vis_control_col1:
+    with control_col:
         st.markdown("<h5 style='font-size:0.9rem; margin:0.1rem 0;'>可视化控制面板</h5>", unsafe_allow_html=True)
         
-        # 缓存实体选项
         @st.cache_data(ttl=300)
-        def get_entity_options_cached(entity_type):
-            return get_entity_options(handler, entity_type)
+        def get_entity_options_cached(entity_type, search_term=""):
+            return get_entity_options(handler, entity_type, search_term)
 
         entity_type_vis = st.selectbox(
             "选择实体类型进行可视化",
             ["公司(company)", "行业(industry)", "产品(product)"],
-            key="vis_entity_type",
-            index=0,
-            label_visibility="collapsed"
+            key="vis_entity_type_selector", # 使用独立的key避免冲突
+            index=0
         )
-        st.caption("选择实体类型")
 
-        entity_options = get_entity_options_cached(entity_type_vis.split("(")[1].split(")")[0])
+        entity_type_pure = entity_type_vis.split("(")[1].split(")")[0]
+        
+        search_query = st.text_input("搜索实体", key="vis_entity_search", placeholder="输入实体名称进行搜索")
+        
+        entity_options = get_entity_options_cached(entity_type_pure, search_query)
+        
         selected_entities = st.multiselect(
             "选择一个或多个实体",
             entity_options,
-            default=entity_options[:2] if entity_options else [],
-            key="vis_entities",
-            label_visibility="collapsed"
+            default=entity_options[:1] if entity_options else [],
+            key="vis_entities_selector"
         )
-        st.caption(f"已选择 {len(selected_entities)} 个实体")
         
-    with vis_control_col2:
-        st.markdown("<h5 style='font-size:0.9rem; margin:0.1rem 0;'>&nbsp;</h5>", unsafe_allow_html=True) # for alignment
-        
+        visualization_options = ["关系网络图"]
+        if entity_type_pure == "industry":
+            visualization_options.extend(["层次结构树", "关系矩阵", "产业链"])
+        elif entity_type_pure == "product":
+            visualization_options.append("产业链")
+
         visualization_type = st.selectbox(
             "选择可视化类型",
-            ["关系网络图", "层次结构树", "关系矩阵"],
-            key="vis_type",
-            label_visibility="collapsed"
+            visualization_options,
+            key="vis_type_selector"
         )
-        st.caption("选择可视化类型")
 
-        depth_vis = st.slider("关系深度", 1, 3, 1, key="vis_depth")
+        depth_vis = st.slider("关系深度", 1, 3, 1, key="vis_depth_slider")
 
-        if st.button("生成可视化图表", use_container_width=True, key="generate_vis"):
-            if not selected_entities:
+        if st.button("生成可视化图表", use_container_width=True, key="generate_vis_button"):
+            st.session_state.visualization_options = None # 清除旧图表
+            st.write(f"Debug: search_query: {search_query}")
+            st.write(f"Debug: filtered_entity_options: {entity_options}")
+            st.write(f"Debug: selected_entities: {selected_entities}")
+
+            entity_name_to_visualize = None
+            if selected_entities:
+                entity_name_to_visualize = selected_entities[0]
+            elif search_query and len(entity_options) == 1:
+                # 如果没有明确选择，但搜索结果只有一个，则默认使用该结果
+                entity_name_to_visualize = entity_options[0]
+            
+            st.write(f"Debug: entity_name_to_visualize: {entity_name_to_visualize}")
+
+            if not entity_name_to_visualize:
                 st.warning("请至少选择一个实体")
             else:
                 with st.spinner("正在生成图表..."):
                     try:
-                        st.session_state.visualization_data = {
-                            "type": visualization_type,
-                            "entities": selected_entities,
-                            "depth": depth_vis
-                        }
+                        options = None
+                        if visualization_type == "关系网络图":
+                            options = display_network_graph(handler, entity_type_pure, entity_name_to_visualize, depth_vis)
+                        elif visualization_type == "层次结构树":
+                            options = display_hierarchy_tree(handler, entity_type_pure, entity_name_to_visualize, depth_vis)
+                        elif visualization_type == "关系矩阵":
+                            options = display_relationship_matrix(handler, entity_type_pure, entity_name_to_visualize, depth_vis)
+                        elif visualization_type == "产业链":
+                            options = display_industry_chain(handler, entity_type_pure, entity_name_to_visualize, depth_vis)
+                        
+                        if options:
+                            st.session_state.visualization_options = options
+                            st.session_state.visualization_message = f"已成功生成“{entity_name_to_visualize}”的{visualization_type}。"
+                        else:
+                            st.session_state.visualization_message = "没有找到可用于生成图表的数据。"
+
                     except Exception as e:
-                        st.error(f"生成可视化失败: {e}")
-                        st.code(traceback.format_exc())
+                        st.session_state.visualization_message = f"生成可视化失败: {e}"
+                        logger.error(traceback.format_exc())
 
-    # 可视化结果显示区
-    st.markdown("<h5 style='font-size:0.9rem; margin:0.1rem 0;'>可视化结果</h5>", unsafe_allow_html=True)
-    if 'visualization_data' in st.session_state:
-        data = st.session_state.visualization_data
-        vis_type = data['type']
+    with result_col:
+        st.markdown("<h5 style='font-size:0.9rem; margin:0.1rem 0;'>可视化结果</h5>", unsafe_allow_html=True)
         
-        with st.container():
-            if vis_type == "关系网络图":
-                fig = display_network_graph(handler, data['entities'], data['depth'])
-                if fig:
-                    st_echarts(options=fig, height="600px")
-                else:
-                    st.info("没有找到可用于生成关系网络图的数据。")
-            
-            elif vis_type == "层次结构树":
-                fig = display_hierarchy_tree(handler, data['entities'][0] if data['entities'] else None)
-                if fig:
-                    st_echarts(options=fig, height="600px")
-                else:
-                    st.info("没有找到可用于生成层次结构树的数据。请确保选择了单个实体。")
+        # 显示消息
+        if 'visualization_message' in st.session_state:
+            st.info(st.session_state.visualization_message)
 
-            elif vis_type == "关系矩阵":
-                fig = display_relationship_matrix(handler, data['entities'])
-                if fig:
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.info("没有找到可用于生成关系矩阵的数据。")
-    else:
-        st.info("点击上方按钮生成可视化图表。")
+        # 显示图表
+        if 'visualization_options' in st.session_state and st.session_state.visualization_options:
+            st_echarts.st_echarts(
+                options=st.session_state.visualization_options,
+                height="600px",
+                key="visualization_chart"
+            )
+        else:
+            st.info("在左侧选择参数并点击“生成可视化图表”来查看结果。")
 
 def get_popular_industries(handler):
     """
@@ -1205,7 +1331,7 @@ def get_popular_industries(handler):
         return []
     try:
         query = (
-            "MATCH (i:industry)<-[:BELONGS_TO]-(c:company) "
+            "MATCH (i:industry)<-[:属于]-(c:company) "
             "RETURN i.name AS industry, count(c) AS company_count "
             "ORDER BY company_count DESC "
             "LIMIT 20"
@@ -1260,18 +1386,17 @@ with tab5:
                             try:
                                 analysis_func = st.session_state.analysis_functions.get(analysis_type)
                                 if analysis_func:
-                                    results = analysis_func(selected_industry, upstream_depth, downstream_depth)
+                                    results = analysis_func(handler, selected_industry, upstream_depth, downstream_depth)
                                     st.session_state.analysis_results = {
                                         "industry": selected_industry,
                                         "type": analysis_type,
-                                        "results": results
+                                        "results": results,
+                                        "message": f"分析完成，找到 {len(results)} 条结果"
                                     }
-                                    st.success(f"分析完成，找到 {len(results)} 条结果")
                                 else:
-                                    st.error(f"未找到“{analysis_type}”对应的分析功能。")
+                                    st.session_state.analysis_results = {"error": f"未找到“{analysis_type}”对应的分析功能。"}
                             except Exception as e:
-                                st.error(f"分析失败: {str(e)}")
-                                st.code(traceback.format_exc())
+                                st.session_state.analysis_results = {"error": f"分析失败: {str(e)}"}
     
     with result_col:
         st.markdown("<h5 style='font-size:0.9rem; margin:0.1rem 0;'>分析结果</h5>", unsafe_allow_html=True)
@@ -1279,7 +1404,12 @@ with tab5:
             st.info("分析结果将显示在这里。")
         else:
             analysis_data = st.session_state.analysis_results
-            st.markdown(f"**行业**: {analysis_data['industry']} | **分析类型**: {analysis_data['type']}")
+            if "error" in analysis_data:
+                st.error(analysis_data["error"])
+            elif "message" in analysis_data:
+                st.success(analysis_data["message"])
+            
+            st.markdown(f"**行业**: {analysis_data.get('industry','N/A')} | **分析类型**: {analysis_data.get('type','N/A')}")
             
             # 使用Tabs来组织数据表格和可视化图表
             res_tab1, res_tab2, res_tab3 = st.tabs(["数据表格", "可视化图表", "数据洞察"])
