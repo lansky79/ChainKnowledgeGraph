@@ -10,7 +10,6 @@ import traceback
 import logging
 import sys
 from datetime import datetime
-from src.neo4j_handler import Neo4jHandler
 from utils.db_connector import Neo4jConnector
 from utils.logger import setup_logger
 import time

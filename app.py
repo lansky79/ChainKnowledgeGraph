@@ -20,7 +20,8 @@ logger = setup_logger("KnowledgeGraph")
 
 # 页面配置
 st.set_page_config(
-    page_title=APP_CONFIG.get("title", "知识图谱可视化"),
+    page_title="知识图谱主页",
+    page_icon="🏠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
