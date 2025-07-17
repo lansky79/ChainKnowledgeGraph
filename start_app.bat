@@ -25,6 +25,6 @@ pip install -r requirements.txt
 
 :: 启动应用
 echo 启动知识图谱可视化应用...
-python -m streamlit run app.py
+python -m streamlit run Home.py
 
 pause 

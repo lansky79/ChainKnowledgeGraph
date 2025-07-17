@@ -1,5 +1,6 @@
 """
-知识图谱数据导入页面
+知识图谱数据管理页面
+提供数据导入、导出、查看等功能
 """
 import streamlit as st
 import pandas as pd
@@ -11,15 +12,18 @@ import logging
 import sys
 from datetime import datetime
 from utils.db_connector import Neo4jConnector
+from utils.export_handler import ExportHandler
+from utils.analytics import Analytics
 from utils.logger import setup_logger
 import time
 
 # 设置日志
-logger = setup_logger("KG_Import")
+logger = setup_logger("KG_Data_Management")
 
 # 页面配置
 st.set_page_config(
-    page_title="知识图谱数据导入",
+    page_title="数据管理",
+    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -35,26 +39,40 @@ st.markdown("""
         margin-top: 0.5rem;
         margin-bottom: 0.5rem;
     }
+    .export-section {
+        background-color: #f0f2f6;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # 页面标题
-st.title("知识图谱数据导入")
+st.title("📊 数据管理")
 
-# 初始化数据库连接
+# 初始化组件
 @st.cache_resource
-def get_db_connector():
-    """获取数据库连接器（缓存资源）"""
-    return Neo4jConnector()
+def get_components():
+    """获取组件实例（缓存资源）"""
+    db = Neo4jConnector()
+    return {
+        "db": db,
+        "export_handler": ExportHandler(db),
+        "analytics": Analytics(db)
+    }
 
-db = get_db_connector()
+components = get_components()
+db = components["db"]
+export_handler = components["export_handler"]
+analytics = components["analytics"]
 
 # 创建选项卡
-tab1, tab2, tab3 = st.tabs(["数据导入", "数据查看", "示例数据"])
+tab1, tab2, tab3, tab4 = st.tabs(["数据导入", "数据导出", "数据查看", "示例数据"])
 
 # 数据导入选项卡
 with tab1:
-    st.header("导入数据到知识图谱")
+    st.header("📥 导入数据到知识图谱")
     
     # 文件上传部分
     st.subheader("上传数据文件")
@@ -72,7 +90,7 @@ with tab1:
         industry_industry_file = st.file_uploader("上传行业-行业关系数据 (JSON格式)", type=["json"], key="industry_industry_file")
     
     # 导入按钮
-    if st.button("导入数据", key="import_button"):
+    if st.button("📥 导入数据", key="import_button"):
         with st.spinner("正在导入数据..."):
             try:
                 # 导入节点数据
@@ -166,7 +184,7 @@ with tab1:
                 
                 # 显示导入结果
                 if nodes_imported > 0 or relationships_imported > 0:
-                    st.success(f"成功导入 {nodes_imported} 个节点和 {relationships_imported} 条关系")
+                    st.success(f"✅ 成功导入 {nodes_imported} 个节点和 {relationships_imported} 条关系")
                     # 清除缓存
                     st.cache_data.clear()
                 else:
@@ -176,9 +194,164 @@ with tab1:
                 st.error(f"导入数据失败: {str(e)}")
                 logger.error(f"导入数据失败: {str(e)}\n{traceback.format_exc()}")
 
-# 数据查看选项卡
+# 数据导出选项卡
 with tab2:
-    st.header("查看知识图谱数据")
+    st.header("📤 导出知识图谱数据")
+    
+    # 导出选项
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        st.subheader("导出设置")
+        
+        # 导出类型选择
+        export_type = st.selectbox(
+            "选择导出类型",
+            ["完整图谱数据", "分析报告", "实体详情"],
+            help="选择要导出的数据类型"
+        )
+        
+        # 导出格式选择
+        export_format = st.selectbox(
+            "导出格式",
+            ["JSON", "CSV", "Excel"],
+            help="选择导出文件格式"
+        )
+        
+        # 如果是实体详情，需要选择实体
+        if export_type == "实体详情":
+            entity_type = st.selectbox(
+                "实体类型",
+                ["company", "industry", "product"],
+                format_func=lambda x: {"company": "公司", "industry": "行业", "product": "产品"}.get(x, x)
+            )
+            
+            # 获取实体列表
+            try:
+                entity_query = f"MATCH (n:{entity_type}) RETURN n.name as name ORDER BY n.name LIMIT 100"
+                entity_results = db.query(entity_query)
+                entity_names = [r["name"] for r in entity_results]
+                
+                if entity_names:
+                    selected_entity = st.selectbox("选择实体", entity_names)
+                else:
+                    st.warning(f"暂无{entity_type}数据")
+                    selected_entity = None
+            except Exception as e:
+                st.error(f"获取实体列表失败: {str(e)}")
+                selected_entity = None
+    
+    with col2:
+        st.subheader("导出操作")
+        
+        # 导出按钮
+        if st.button("🚀 开始导出", key="export_button"):
+            with st.spinner("正在准备导出数据..."):
+                try:
+                    success = False
+                    message = ""
+                    file_data = None
+                    filename = ""
+                    
+                    if export_type == "完整图谱数据":
+                        # 导出完整图谱数据
+                        # 获取所有节点和边
+                        nodes_query = """
+                        CALL {
+                            MATCH (c:company) RETURN id(c) as id, c.name as label, 'company' as type, c as properties
+                            UNION ALL
+                            MATCH (i:industry) RETURN id(i) as id, i.name as label, 'industry' as type, i as properties
+                            UNION ALL
+                            MATCH (p:product) RETURN id(p) as id, p.name as label, 'product' as type, p as properties
+                        }
+                        RETURN id, label, type, properties
+                        """
+                        
+                        edges_query = """
+                        MATCH (a)-[r]->(b)
+                        RETURN id(a) as from, id(b) as to, type(r) as label, r as properties
+                        """
+                        
+                        nodes_results = db.query(nodes_query)
+                        edges_results = db.query(edges_query)
+                        
+                        nodes = [{"id": r["id"], "label": r["label"], "type": r["type"], **dict(r["properties"])} for r in nodes_results]
+                        edges = [{"from": r["from"], "to": r["to"], "label": r["label"], **dict(r["properties"])} for r in edges_results]
+                        
+                        format_mapping = {"JSON": "json", "CSV": "csv", "Excel": "xlsx"}
+                        success, message, file_data = export_handler.export_graph_data(
+                            nodes, edges, format_mapping[export_format]
+                        )
+                        filename = f"knowledge_graph_full.{format_mapping[export_format]}"
+                    
+                    elif export_type == "分析报告":
+                        # 导出分析报告
+                        report_data = analytics.generate_summary_report()
+                        
+                        format_mapping = {"JSON": "json", "CSV": "csv", "Excel": "xlsx"}
+                        success, message, file_data = export_handler.export_analysis_report(
+                            report_data, format_mapping[export_format]
+                        )
+                        filename = f"analysis_report.{format_mapping[export_format]}"
+                    
+                    elif export_type == "实体详情" and selected_entity:
+                        # 导出实体详情
+                        format_mapping = {"JSON": "json", "CSV": "csv", "Excel": "xlsx"}
+                        success, message, file_data = export_handler.export_entity_details(
+                            selected_entity, entity_type, format_mapping[export_format]
+                        )
+                        filename = f"{selected_entity}_details.{format_mapping[export_format]}"
+                    
+                    # 显示导出结果
+                    if success and file_data:
+                        st.success(message)
+                        
+                        # 设置MIME类型
+                        mime_types = {
+                            "json": "application/json",
+                            "csv": "text/csv",
+                            "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        }
+                        
+                        format_ext = format_mapping[export_format]
+                        
+                        st.download_button(
+                            label=f"📥 下载 {export_format} 文件",
+                            data=file_data,
+                            file_name=filename,
+                            mime=mime_types.get(format_ext, "application/octet-stream"),
+                            key="download_export_file"
+                        )
+                    else:
+                        st.error(message or "导出失败")
+                        
+                except Exception as e:
+                    st.error(f"导出失败: {str(e)}")
+                    logger.error(f"导出失败: {str(e)}")
+        
+        # 导出统计信息
+        st.markdown("---")
+        st.subheader("📊 导出统计")
+        
+        try:
+            export_stats = export_handler.get_export_statistics()
+            if export_stats:
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("活跃分享链接", export_stats.get('active_shares', 0))
+                    st.metric("总访问次数", export_stats.get('total_accesses', 0))
+                with col2:
+                    st.write("**支持格式:**")
+                    for fmt in export_stats.get('export_formats_supported', []):
+                        st.write(f"- {fmt.upper()}")
+            else:
+                st.info("暂无导出统计数据")
+        except Exception as e:
+            st.error(f"获取导出统计失败: {str(e)}")
+
+# 数据查看选项卡
+with tab3:
+    st.header("👀 查看知识图谱数据")
     
     # 显示数据库状态
     st.subheader("数据库状态")
@@ -188,42 +361,82 @@ with tab2:
         
         with col1:
             company_count = db.get_node_count("company")
-            st.metric("公司节点数量", company_count)
+            st.metric("公司节点数量", f"{company_count:,}")
         
         with col2:
             industry_count = db.get_node_count("industry")
-            st.metric("行业节点数量", industry_count)
+            st.metric("行业节点数量", f"{industry_count:,}")
         
         with col3:
             product_count = db.get_node_count("product")
-            st.metric("产品节点数量", product_count)
+            st.metric("产品节点数量", f"{product_count:,}")
         
         # 显示关系数量
-        st.subheader("关系数量")
+        st.subheader("关系统计")
         
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            company_industry_count = db.get_relationship_count("company", "industry", "所属行业")
-            st.metric("公司-行业关系", company_industry_count)
+            try:
+                company_industry_count = db.get_relationship_count("company", "industry", "所属行业")
+                st.metric("公司-行业关系", f"{company_industry_count:,}")
+            except:
+                st.metric("公司-行业关系", "N/A")
         
         with col2:
-            company_product_count = db.get_relationship_count("company", "product", "主营产品")
-            st.metric("公司-产品关系", company_product_count)
+            try:
+                company_product_count = db.get_relationship_count("company", "product", "主营产品")
+                st.metric("公司-产品关系", f"{company_product_count:,}")
+            except:
+                st.metric("公司-产品关系", "N/A")
         
         with col3:
-            industry_industry_count = db.get_relationship_count("industry", "industry", "上级行业")
-            st.metric("行业-行业关系", industry_industry_count)
+            try:
+                industry_industry_count = db.get_relationship_count("industry", "industry", "上级行业")
+                st.metric("行业-行业关系", f"{industry_industry_count:,}")
+            except:
+                st.metric("行业-行业关系", "N/A")
+        
+        # 数据样本预览
+        st.subheader("数据样本预览")
+        
+        preview_type = st.selectbox(
+            "选择预览类型",
+            ["company", "industry", "product"],
+            format_func=lambda x: {"company": "公司", "industry": "行业", "product": "产品"}.get(x, x)
+        )
+        
+        try:
+            preview_query = f"""
+            MATCH (n:{preview_type})
+            RETURN n.name as name, n.description as description
+            ORDER BY n.name
+            LIMIT 10
+            """
+            
+            preview_results = db.query(preview_query)
+            
+            if preview_results:
+                df = pd.DataFrame(preview_results)
+                df.columns = ["名称", "描述"]
+                st.dataframe(df, use_container_width=True)
+            else:
+                st.info(f"暂无{preview_type}数据")
+                
+        except Exception as e:
+            st.error(f"获取数据预览失败: {str(e)}")
         
     except Exception as e:
         st.error(f"获取数据库状态时出错: {str(e)}")
         logger.error(f"获取数据库状态时出错: {str(e)}")
 
 # 示例数据选项卡
-with tab3:
-    st.header("导入示例数据")
+with tab4:
+    st.header("🚀 导入示例数据")
     
-    if st.button("导入示例数据", help="导入包括阿里巴巴、华为等公司的示例数据", key="import_sample_button"):
+    st.info("💡 如果您是首次使用，建议导入示例数据来体验系统功能")
+    
+    if st.button("📥 导入示例数据", help="导入包括阿里巴巴、华为等公司的示例数据", key="import_sample_button"):
         with st.spinner("正在导入示例数据..."):
             try:
                 # 定义示例数据
@@ -326,15 +539,18 @@ with tab3:
                         {"industry1": rel[0], "industry2": rel[1]}
                     )
                 
-                st.success("示例数据导入成功！")
+                st.success("✅ 示例数据导入成功！")
+                st.info("🎉 您现在可以使用其他功能页面来探索这些数据了")
+                
                 # 清除缓存
                 st.cache_data.clear()
+                
             except Exception as e:
                 st.error(f"导入示例数据失败: {str(e)}")
                 logger.error(f"导入示例数据失败: {str(e)}\n{traceback.format_exc()}")
     
     # 显示示例数据结构
-    with st.expander("查看示例数据结构"):
+    with st.expander("📋 查看示例数据结构"):
         st.code("""
 # 公司数据格式 (JSON)
 [
@@ -381,4 +597,28 @@ with tab3:
 
 # 页脚
 st.markdown("---")
-st.caption(f"知识图谱数据导入工具 | {datetime.now().strftime('%Y-%m-%d')}") 
+st.caption(f"知识图谱数据管理工具 | {datetime.now().strftime('%Y-%m-%d')}")
+
+# 侧边栏帮助信息
+with st.sidebar:
+    st.markdown("---")
+    st.subheader("📖 功能说明")
+    
+    with st.expander("数据管理功能"):
+        st.markdown("""
+        - **数据导入**: 上传JSON格式的数据文件
+        - **数据导出**: 导出图谱数据和分析报告
+        - **数据查看**: 查看数据库状态和数据样本
+        - **示例数据**: 快速导入演示数据
+        """)
+    
+    with st.expander("支持的文件格式"):
+        st.markdown("""
+        **导入格式:**
+        - JSON (推荐)
+        
+        **导出格式:**
+        - JSON - 结构化数据
+        - CSV - 表格数据
+        - Excel - 电子表格
+        """)

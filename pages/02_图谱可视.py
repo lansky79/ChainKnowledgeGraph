@@ -1,5 +1,5 @@
 """
-知识图谱高级可视化页面
+知识图谱可视化页面
 """
 import streamlit as st
 import streamlit_echarts as st_echarts
@@ -25,7 +25,7 @@ logger = setup_logger("KG_Advanced_Viz")
 
 # 页面配置
 st.set_page_config(
-    page_title="知识图谱高级可视化",
+    page_title="图谱可视",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -120,7 +120,7 @@ def get_db_connector():
 db = get_db_connector()
 
 # 页面标题
-st.title("知识图谱高级可视化")
+st.title("图谱可视")
 
 # 创建侧边栏
 st.sidebar.header("查询选项")
@@ -1119,4 +1119,4 @@ else:
 
 # 页脚
 st.markdown("---")
-st.caption(f"知识图谱高级可视化 | {datetime.now().strftime('%Y-%m-%d')}")
+st.caption(f"图谱可视 | {datetime.now().strftime('%Y-%m-%d')}")
